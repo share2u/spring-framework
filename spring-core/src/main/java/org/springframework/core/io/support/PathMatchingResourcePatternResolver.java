@@ -527,7 +527,7 @@ public class PathMatchingResourcePatternResolver implements ResourcePatternResol
 			else if (ResourceUtils.isJarURL(rootDirUrl) || isJarResource(rootDirResource)) {
 				result.addAll(doFindPathMatchingJarResources(rootDirResource, rootDirUrl, subPattern));
 			}
-			// 其它资源类型
+			// 其它资源类型ff
 			else {
 				result.addAll(doFindPathMatchingFileResources(rootDirResource, subPattern));
 			}
