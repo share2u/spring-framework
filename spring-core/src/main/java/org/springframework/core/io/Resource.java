@@ -48,6 +48,8 @@ import org.springframework.lang.Nullable;
  * @see ClassPathResource
  * @see ByteArrayResource
  * @see InputStreamResource
+ *
+ * Spring 框架所有资源的抽象和访问接口,子类 AbstractResource 提供统一的默认实现
  */
 public interface Resource extends InputStreamSource {
 

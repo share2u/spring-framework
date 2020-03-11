@@ -23,7 +23,7 @@ import org.springframework.tests.sample.beans.TestBean;
 
 import static org.junit.Assert.*;
 
-/**
+/**解析 Properties 配置文件成对应的 BeanDefinition 们的流程
  * @author Rob Harrop
  */
 public class PropertiesBeanDefinitionReaderTests {
