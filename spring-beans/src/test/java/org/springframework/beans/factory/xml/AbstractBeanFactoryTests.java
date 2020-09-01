@@ -39,6 +39,7 @@ import static org.junit.Assert.*;
 /**
  * Subclasses must initialize the bean factory and any other variables they need.
  *
+ * AbstractBeanFactoryTests 是一个抽象类，所以在运行时，需要选择对应的子类，例如 XmlListableBeanFactoryTests 类。
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @author Sam Brannen
@@ -207,6 +208,8 @@ public abstract class AbstractBeanFactoryTests {
 		assertTrue("Dad has correct name", dad.getName().equals("Albert"));
 	}
 
+	/**
+	 * 单例factoryBean测试*/
 	@Test
 	public void factorySingleton() throws Exception {
 		assertTrue(getBeanFactory().isSingleton("&singletonFactory"));
