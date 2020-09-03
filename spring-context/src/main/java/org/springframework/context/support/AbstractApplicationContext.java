@@ -509,43 +509,49 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	}
 
 	@Override
+	/**
+	 * spring 启动的入口main 方法
+	 * 构建 BeanFactory，以便于产生所需的”演员”
+	 * 注册可能感兴趣的事件
+	 * 创建 Bean 实例对象
+	 * 触发被监听的事件
+	 */
 	public void refresh() throws BeansException, IllegalStateException {
 		synchronized (this.startupShutdownMonitor) {
-			// Prepare this context for refreshing.
+			// 准备刷新上下文环境
 			prepareRefresh();
-
-			// Tell the subclass to refresh the internal bean factory.
+			//调用子类 创建和配置BeanFactory
 			ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory();
 
-			// Prepare the bean factory for use in this context.
+			// 填充beanFactory功能
 			prepareBeanFactory(beanFactory);
 
 			try {
-				// Allows post-processing of the bean factory in context subclasses.
+				// 提供子类覆盖的额外处理，子类处理自定义的BeanFactoryPostProcess
 				postProcessBeanFactory(beanFactory);
 
-				// Invoke factory processors registered as beans in the context.
+				// 激活各种beanFactory 处理器
 				invokeBeanFactoryPostProcessors(beanFactory);
 
-				// Register bean processors that intercept bean creation.
+				// 注册拦截bean 创建的Bean处理器 即 注册BeanPostProcessor
 				registerBeanPostProcessors(beanFactory);
 
-				// Initialize message source for this context.
+				// 初始化上下文的资源文件，如国际化文件的处理等
 				initMessageSource();
 
-				// Initialize event multicaster for this context.
+				// 初始化上下文事件广播器
 				initApplicationEventMulticaster();
 
-				// Initialize other special beans in specific context subclasses.
+				// 给子类拓展初始化其他bean
 				onRefresh();
 
-				// Check for listener beans and register them.
+				// 在所有Bean中查找listener bean 然后注册到广播器中
 				registerListeners();
 
-				// Instantiate all remaining (non-lazy-init) singletons.
+				// 初始化剩下的单例bean 非延迟加载
 				finishBeanFactoryInitialization(beanFactory);
 
-				// Last step: publish corresponding event.
+				// 完成刷新过程，通知生命周期处理器 lifecycleProcessor 刷新过程，同时发出ContextRefreshEvent 通知别人
 				finishRefresh();
 			}
 
@@ -555,7 +561,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 							"cancelling refresh attempt: " + ex);
 				}
 
-				// Destroy already created singletons to avoid dangling resources.
+				// 销毁已经创建的 bean
 				destroyBeans();
 
 				// Reset 'active' flag.
