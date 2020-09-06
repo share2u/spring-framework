@@ -520,20 +520,20 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		synchronized (this.startupShutdownMonitor) {
 			// 准备刷新上下文环境
 			prepareRefresh();
-			//调用子类 创建和配置BeanFactory
+			//调用子类 创建和配置BeanFactory  加载BeanDefinitions
 			ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory();
 
-			// 填充beanFactory功能
+			// 设置beanFactory属性
 			prepareBeanFactory(beanFactory);
 
 			try {
 				// 提供子类覆盖的额外处理，子类处理自定义的BeanFactoryPostProcess
 				postProcessBeanFactory(beanFactory);
 
-				// 激活各种beanFactory 处理器
+				// 调用各种 beanFactory处理器  对 已加载 BeanDefinitions  修饰
 				invokeBeanFactoryPostProcessors(beanFactory);
 
-				// 注册拦截bean 创建的Bean处理器 即 注册BeanPostProcessor
+				// 注册BeanPostProcessor  用于bean 初始化过程中的操作
 				registerBeanPostProcessors(beanFactory);
 
 				// 初始化上下文的资源文件，如国际化文件的处理等

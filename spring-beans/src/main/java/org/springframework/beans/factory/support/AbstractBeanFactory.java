@@ -294,7 +294,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 				}
 			}
 
-			// 如果不是仅仅做类型检查则是创建bean，这里需要记录
+			// 如果不是仅仅做类型检查则是创建bean，这里需要记录 开始实例化bean
 			if (!typeCheckOnly) {
 				markBeanAsCreated(beanName);
 			}

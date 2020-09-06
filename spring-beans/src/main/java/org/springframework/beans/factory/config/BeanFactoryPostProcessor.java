@@ -36,7 +36,7 @@ import org.springframework.beans.BeansException;
  * instantiation, violating the container and causing unintended side-effects.
  * If bean instance interaction is required, consider implementing
  * {@link BeanPostProcessor} instead.
- *
+ * 许使用者修改容器中的bean definitions  绝对不允许在BeanFactoryPostProcessor中触发到bean的实例化
  * @author Juergen Hoeller
  * @since 06.07.2003
  * @see BeanPostProcessor
