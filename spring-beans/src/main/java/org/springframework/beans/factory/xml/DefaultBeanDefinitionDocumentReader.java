@@ -182,11 +182,13 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 				if (node instanceof Element) {
 					Element ele = (Element) node;
 					if (delegate.isDefaultNamespace(ele)) {
-						//如果根节点或者子节点采用默认命名空间的话，则调用 parseDefaultElement() 进行解析
+						// 如果根节点或者子节点采用默认命名空间的话，则调用 parseDefaultElement() 进行解析
+						// eg:配置文件式声明：<bean id="studentService" class="org.springframework.core.StudentService"/>
 						parseDefaultElement(ele, delegate);
 					}
 					else {
 						// 没有使用Spring默认的XML命名空间，则使用用户自定义的解析规则解析元素节点
+						// eg:自定义注解方式：<tx:annotation-driven>
 						delegate.parseCustomElement(ele);
 					}
 				}
