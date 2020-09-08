@@ -247,6 +247,12 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		// Eagerly check singleton cache for manually registered singletons.
 		// 从缓存中或者实例工厂中获取 bean
 		// *** 这里会涉及到解决循环依赖 bean 的问题
+		// 对于单例模式 Spring 在创建 bean 的时候并不是等 bean 完全创建完成后才会将 bean 添加至缓存中，
+		// 而是不等 bean 创建完成就会将创建 bean 的 ObjectFactory 提早加入到缓存中，
+		// 这样一旦下一个 bean 创建的时候需要依赖 bean 时则直接使用 ObjectFactroy。
+		// 但是原型模式我们知道是没法使用缓存的，
+		// 所以 Spring 对原型模式的循环依赖处理策略则是不处理（关于循环依赖后面会有单独文章说明）。
+		// 如果容器缓存中没有相对应的 BeanDefinition 则会尝试从父类工厂（parentBeanFactory）中加载，然后再去递归调用 getBean()
 		Object sharedInstance = getSingleton(beanName);
 		if (sharedInstance != null && args == null) {
 			if (logger.isTraceEnabled()) {
