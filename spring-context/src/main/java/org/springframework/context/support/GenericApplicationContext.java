@@ -314,7 +314,7 @@ public class GenericApplicationContext extends AbstractApplicationContext implem
 
 	//---------------------------------------------------------------------
 	// Implementation of BeanDefinitionRegistry
-	//---------------------------------------------------------------------
+	//---------------------------------------------------------------------x
 
 	@Override
 	public void registerBeanDefinition(String beanName, BeanDefinition beanDefinition)
