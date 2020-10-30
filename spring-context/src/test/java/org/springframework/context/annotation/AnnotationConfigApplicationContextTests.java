@@ -107,6 +107,7 @@ public class AnnotationConfigApplicationContextTests {
 
 	@Test
 	public void getBeanByTypeAmbiguityRaisesException() {
+		// 基于注解的ioc  测试入口
 		ApplicationContext context = new AnnotationConfigApplicationContext(TwoTestBeanConfig.class);
 
 		try {

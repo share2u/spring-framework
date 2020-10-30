@@ -156,7 +156,9 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	/** Map from dependency type to corresponding autowired value. */
 	private final Map<Class<?>, Object> resolvableDependencies = new ConcurrentHashMap<>(16);
 
-	/** Map of bean definition objects, keyed by bean name. */
+	/** Map of bean definition objects, keyed by bean name.
+	 * beanDefinitionMap   定义的 beanDefinition
+	 * */
 	private final Map<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>(256);
 
 	/** Map of singleton and non-singleton bean names, keyed by dependency type. */
@@ -821,14 +823,17 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 
 		// Trigger initialization of all non-lazy singleton beans...
 		for (String beanName : beanNames) {
+			// 合并父 Bean 中的配置，主意<bean id="" class="" parent="" /> 中的 parent属性
 			RootBeanDefinition bd = getMergedLocalBeanDefinition(beanName);
 			//不是抽象类、是单例的且不是懒加载的
 			if (!bd.isAbstract() && bd.isSingleton() && !bd.isLazyInit()) {
 				// factoryBean vs beanFactory
 				if (isFactoryBean(beanName)) {
+					//在 beanName 前面加上“&” 符号
 					Object bean = getBean(FACTORY_BEAN_PREFIX + beanName);
 					if (bean instanceof FactoryBean) {
 						final FactoryBean<?> factory = (FactoryBean<?>) bean;
+						// 判断当前 FactoryBean 是否是 SmartFactoryBean 的实现
 						boolean isEagerInit;
 						if (System.getSecurityManager() != null && factory instanceof SmartFactoryBean) {
 							isEagerInit = AccessController.doPrivileged((PrivilegedAction<Boolean>)
@@ -840,7 +845,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 									((SmartFactoryBean<?>) factory).isEagerInit());
 						}
 						if (isEagerInit) {
-							// 重要
+							// 重要  // 不是FactoryBean的直接使用此方法进行初始化
 							getBean(beanName);
 						}
 					}
@@ -852,6 +857,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 		}
 
 		// Trigger post-initialization callback for all applicable beans...
+		// 如果bean实现了 SmartInitializingSingleton 接口的，那么在这里得到回调
 		for (String beanName : beanNames) {
 			Object singletonInstance = getSingleton(beanName);
 			if (singletonInstance instanceof SmartInitializingSingleton) {

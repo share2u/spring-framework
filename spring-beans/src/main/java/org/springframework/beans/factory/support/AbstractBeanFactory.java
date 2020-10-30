@@ -241,7 +241,11 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			@Nullable final Object[] args, boolean typeCheckOnly) throws BeansException {
 
 		// 获取 beanName，这里是一个转换动作，将 name 转换 beanName
+		// 获取beanName，处理两种情况，
+		// 一个是前面说的 FactoryBean(前面带 ‘&’)，主要逻辑就是如果是FactoryBean就把&去掉
+		// 再一个这个方法是可以根据别名来获取Bean的，所以在这里是要转换成最正统的BeanName,如果是别名就把根据别名获取真实名称
 		final String beanName = transformedBeanName(name);
+		//最后的返回值
 		Object bean;
 
 		// Eagerly check singleton cache for manually registered singletons.
@@ -264,8 +268,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 					logger.trace("Returning cached instance of singleton bean '" + beanName + "'");
 				}
 			}
-			//如果从缓存中得到了 bean，则需要调用 getObjectForBeanInstance() 对 bean 进行实例化处理，
-			// 因为缓存中记录的是最原始的 bean 状态，我们得到的不一定是我们最终想要的 bean
+			// 这里如果是普通Bean 的话，直接返回，如果是 FactoryBean 的话，返回它创建的那个实例对象
 			bean = getObjectForBeanInstance(sharedInstance, name, beanName, null);
 		}
 

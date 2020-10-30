@@ -309,10 +309,12 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 	 * @return a corresponding Set of autodetected bean definitions
 	 */
 	public Set<BeanDefinition> findCandidateComponents(String basePackage) {
+		//判断是否使用Filter指定忽略包不扫描
 		if (this.componentsIndex != null && indexSupportsIncludeFilters()) {
 			return addCandidateComponentsFromIndex(this.componentsIndex, basePackage);
 		}
 		else {
+			//扫描包
 			return scanCandidateComponents(basePackage);
 		}
 	}
@@ -416,8 +418,10 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 	private Set<BeanDefinition> scanCandidateComponents(String basePackage) {
 		Set<BeanDefinition> candidates = new LinkedHashSet<>();
 		try {
+			//组装扫描路径（组装完成后是这种格式：classpath*:cn/shiyujun/config/**/*.class）
 			String packageSearchPath = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX +
 					resolveBasePackage(basePackage) + '/' + this.resourcePattern;
+			//根据路径获取资源对象
 			Resource[] resources = getResourcePatternResolver().getResources(packageSearchPath);
 			boolean traceEnabled = logger.isTraceEnabled();
 			boolean debugEnabled = logger.isDebugEnabled();
@@ -427,8 +431,10 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 				}
 				if (resource.isReadable()) {
 					try {
+						//根据资源对象通过反射获取资源对象的MetadataReader
 						MetadataReader metadataReader = getMetadataReaderFactory().getMetadataReader(resource);
 						if (isCandidateComponent(metadataReader)) {
+							//查看配置类是否有@Conditional一系列的注解，然后是否满足注册Bean的条件
 							ScannedGenericBeanDefinition sbd = new ScannedGenericBeanDefinition(metadataReader);
 							sbd.setResource(resource);
 							sbd.setSource(resource);

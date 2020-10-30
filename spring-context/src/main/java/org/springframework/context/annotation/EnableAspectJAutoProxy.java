@@ -120,6 +120,8 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Import(AspectJAutoProxyRegistrar.class)
+//导入了一个类AspectJAutoProxyRegistrar到Spring容器中
+//@EnableAspectJAutoProxy注解的作用就是向容器中添加一个InstantiationAwareBeanPostProcessor类，拦截bean的创建并生成代理对象。
 public @interface EnableAspectJAutoProxy {
 
 	/**
