@@ -574,6 +574,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 						// the root application context (if any; may be null) as the parent
 						cwac.setParent(rootContext);
 					}
+					// 执行refresh
 					configureAndRefreshWebApplicationContext(cwac);
 				}
 			}
@@ -602,6 +603,12 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 		if (this.publishContext) {
 			// Publish the context as a servlet context attribute.
 			String attrName = getServletContextAttributeName();
+			/**
+			 * 这里将初始化后的context存到了servletContext中，
+			 * 具体的就是存到了一个Map变量中，key值就是WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE这个常量。
+			 * 使用Spring的 WebApplicationContextUtils 工 具类获取这个WebApplicationContext
+
+			 */
 			getServletContext().setAttribute(attrName, wac);
 		}
 

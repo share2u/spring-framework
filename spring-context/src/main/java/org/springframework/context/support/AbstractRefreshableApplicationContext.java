@@ -130,7 +130,7 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 			// 后续很多操作 基于 DefaultListableBeanFactory
 			DefaultListableBeanFactory beanFactory = createBeanFactory();
 			beanFactory.setSerializationId(getId());
-			// 自定义BeanFactory
+			// 自定义BeanFactory 置是否允许重写BeanDefinition、是否允许循环引用
 			customizeBeanFactory(beanFactory);
 			// 加载和解析beanDefinition，也就是把用户定义的数据结构转化为ioc容器中的特定数据结构
 			loadBeanDefinitions(beanFactory);

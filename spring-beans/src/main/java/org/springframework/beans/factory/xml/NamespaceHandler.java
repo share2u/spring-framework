@@ -45,6 +45,7 @@ import org.springframework.lang.Nullable;
  * @since 2.0
  * @see DefaultBeanDefinitionDocumentReader
  * @see NamespaceHandlerResolver
+ * 标签解析器
  */
 public interface NamespaceHandler {
 

@@ -210,6 +210,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 		}
 		// 对 bean 标签的解析 并注册到容器中
 		else if (delegate.nodeNameEquals(ele, BEAN_ELEMENT)) {
+			//TODO cwm Bean的加载
 			processBeanDefinition(ele, delegate);
 		}
 		// 对 beans 标签的解析
