@@ -59,7 +59,7 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping i
 	private boolean useTrailingSlashMatch = false;
 
 	private boolean lazyInitHandlers = false;
-
+//url 和controller 的对应关系
 	private final Map<String, Object> handlerMap = new LinkedHashMap<>();
 
 

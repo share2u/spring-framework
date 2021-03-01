@@ -61,6 +61,9 @@ import org.springframework.web.context.request.async.WebAsyncUtils;
 import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.MultipartResolver;
+import org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping;
+import org.springframework.web.servlet.handler.SimpleUrlHandlerMapping;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import org.springframework.web.util.NestedServletException;
 import org.springframework.web.util.WebUtils;
 
@@ -497,6 +500,9 @@ public class DispatcherServlet extends FrameworkServlet {
 	/**
 	 * Initialize the strategy objects that this servlet uses.
 	 * <p>May be overridden in subclasses in order to initialize further strategy objects.
+	 * initStrategies方法中的各个方法，从方法名上可以很容易理解其作用，
+	 * 大部分的执行逻辑都是先从WebApplicationContext中查找，
+	 * 找不到的情况下再加载和DispatcherServlet同目录下的DispatcherServlet.properties中的各个策略，如初始化HandlerMapping，
 	 */
 	protected void initStrategies(ApplicationContext context) {
 		initMultipartResolver(context);
@@ -912,6 +918,7 @@ public class DispatcherServlet extends FrameworkServlet {
 		// Keep a snapshot of the request attributes in case of an include,
 		// to be able to restore the original attributes after the include.
 		Map<String, Object> attributesSnapshot = null;
+		// 对于include请求、保存一份请求属性快照，在doDispatch执行完成后转存到request中
 		if (WebUtils.isIncludeRequest(request)) {
 			attributesSnapshot = new HashMap<>();
 			Enumeration<?> attrNames = request.getAttributeNames();
@@ -939,6 +946,7 @@ public class DispatcherServlet extends FrameworkServlet {
 		}
 
 		try {
+			// 请求转化到具体的handler
 			doDispatch(request, response);
 		}
 		finally {
@@ -994,6 +1002,11 @@ public class DispatcherServlet extends FrameworkServlet {
 	 * @param request current HTTP request
 	 * @param response current HTTP response
 	 * @throws Exception in case of any kind of processing failure
+	 * 进入doDispatch方法，这个方法实现了将请求分发到具体Handler、
+	 * 执行拦截器的preHandle方法、调用Handler（编写的Controller）处理具体逻辑、
+	 * 执行拦截器的postHandle方法、
+	 * 处理返回的ModelAndView或异常、执行拦截器的afterCompletion方法
+	 *
 	 */
 	protected void doDispatch(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		HttpServletRequest processedRequest = request;
@@ -1010,14 +1023,14 @@ public class DispatcherServlet extends FrameworkServlet {
 				processedRequest = checkMultipart(request);
 				multipartRequestParsed = (processedRequest != request);
 
-				// Determine handler for the current request.
+				// 根据请求查找实际处理逻辑的handler  HandlerExecutionChain<--HandlerMethod<----Handler
 				mappedHandler = getHandler(processedRequest);
 				if (mappedHandler == null) {
 					noHandlerFound(processedRequest, response);
 					return;
 				}
 
-				// Determine handler adapter for the current request.
+				// 遍历handlerAdapter集合、查找支持这次请求的handlerAdapter
 				HandlerAdapter ha = getHandlerAdapter(mappedHandler.getHandler());
 
 				// Process last-modified header, if supported by the handler.
@@ -1227,6 +1240,11 @@ public class DispatcherServlet extends FrameworkServlet {
 	@Nullable
 	protected HandlerExecutionChain getHandler(HttpServletRequest request) throws Exception {
 		if (this.handlerMappings != null) {
+			// 遍历所有的 handlerMappings 进行处理，handlerMappings 是在启动的时候预先注册好的
+			/**
+			 * handlerMappings 包含 RequestMappingHandlerMapping、BeanNameUrlHandlerMapping、RouterFunctionMapping、
+			 * 			SimpleUrlHandlerMapping 以及 WelcomePageHandlerMapping
+			 */
 			for (HandlerMapping mapping : this.handlerMappings) {
 				HandlerExecutionChain handler = mapping.getHandler(request);
 				if (handler != null) {
