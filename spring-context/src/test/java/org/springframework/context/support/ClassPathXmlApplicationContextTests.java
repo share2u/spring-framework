@@ -78,6 +78,8 @@ public class ClassPathXmlApplicationContextTests {
 		 * 测试 refresh 入口
 		 */
 		ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext(FQ_SIMPLE_CONTEXT);
+		StaticMessageSource someMessageSource = (StaticMessageSource) ctx.getBean("someMessageSource");
+		someMessageSource.hi();
 		assertTrue(ctx.containsBean("someMessageSource"));
 		ctx.close();
 	}

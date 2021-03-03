@@ -549,7 +549,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 				// 在所有Bean中查找listener bean 然后注册到广播器中
 				registerListeners();
 
-				// 初始化剩下的单例bean 非延迟加载
+				// 初始化单例bean 非延迟加载
 				finishBeanFactoryInitialization(beanFactory);
 
 				// 完成刷新过程，通知生命周期处理器 lifecycleProcessor 刷新过程，同时发出ContextRefreshEvent 通知别人
@@ -890,7 +890,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		//冻结所有的bean定义，即已注册的bean定义将不会被修改或后处理
 		beanFactory.freezeConfiguration();
 
-		//初始化所有剩余的单例（非延迟初始化，需要立即初始化的单例bean  其他类型的在使用的时候进行初始化）
+		//初始化单例（非延迟初始化，需要立即初始化的单例bean  其他类型的在使用的时候进行初始化）
 		beanFactory.preInstantiateSingletons();
 	}
 

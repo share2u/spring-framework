@@ -93,9 +93,8 @@ public class StaticMessageSource extends AbstractMessageSource {
 	}
 
 
-	@Override
-	public String toString() {
-		return getClass().getName() + ": " + this.messages;
+	public  void hi(){
+		System.out.println(this);
 	}
 
 }
