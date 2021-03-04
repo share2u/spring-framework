@@ -29,6 +29,9 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.aop.AopInvocationException;
 import org.springframework.aop.RawTargetAccess;
 import org.springframework.aop.TargetSource;
+import org.springframework.aop.aspectj.AspectJAfterAdvice;
+import org.springframework.aop.framework.adapter.MethodBeforeAdviceInterceptor;
+import org.springframework.aop.interceptor.ExposeInvocationInterceptor;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.core.DecoratingProxy;
 import org.springframework.lang.Nullable;
@@ -118,6 +121,7 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
 		if (logger.isTraceEnabled()) {
 			logger.trace("Creating JDK dynamic proxy: " + this.advised.getTargetSource());
 		}
+//		拿到所有要代理的接口
 		Class<?>[] proxiedInterfaces = AopProxyUtils.completeProxiedInterfaces(this.advised, true);
 		findDefinedEqualsAndHashCodeMethods(proxiedInterfaces);
 //		this 代理类执行的时候会走向this的invoke方法
@@ -151,6 +155,7 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
 	 * Implementation of {@code InvocationHandler.invoke}.
 	 * <p>Callers will see exactly the exception thrown by the target,
 	 * unless a hook method throws an exception.
+	 * 由于JdkDynamicAopProxy本身实现了InvocationHandler接口，因此具体代理前后处理的逻辑在invoke方法中：
 	 */
 	@Override
 	@Nullable
@@ -196,6 +201,9 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
 
 			// Get the interception chain for this method.
 			// 获取的是当前目标方法对应的拦截器，里面是根据之前获取到的切面来获取相对应拦截器，这时候会得到TransactionInterceptor实例
+//			chain.get(0)：ExposeInvocationInterceptor，这是一个默认的拦截器，对应的原Advisor为DefaultPointcutAdvisor
+//			chain.get(1)：MethodBeforeAdviceInterceptor，用于在实际方法调用之前的拦截，对应的原Advisor为AspectJMethodBeforeAdvice
+//			chain.get(2)：AspectJAfterAdvice，用于在实际方法调用之后的处理
 			List<Object> chain = this.advised.getInterceptorsAndDynamicInterceptionAdvice(method, targetClass);
 
 			// Check whether we have any advice. If we don't, we can fallback on direct

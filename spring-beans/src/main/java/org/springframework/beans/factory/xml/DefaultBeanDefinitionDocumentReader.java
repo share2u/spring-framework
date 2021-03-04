@@ -188,7 +188,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 					}
 					else {
 						// 没有使用Spring默认的XML命名空间，则使用用户自定义的解析规则解析元素节点
-						// eg:自定义注解方式：<tx:annotation-driven>
+						// eg:自定义注解方式：<tx:annotation-driven> aop 的标签
 						delegate.parseCustomElement(ele);
 					}
 				}

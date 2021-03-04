@@ -102,7 +102,11 @@ class ConfigBeanDefinitionParser implements BeanDefinitionParser {
 		CompositeComponentDefinition compositeDef =
 				new CompositeComponentDefinition(element.getTagName(), parserContext.extractSource(element));
 		parserContext.pushContainingComponent(compositeDef);
-
+/**
+ * 向Spring容器注册了一个BeanName为org.springframework.aop.config.internalAutoProxyCreator的Bean定义，可以自定义也可以使用Spring提供的（根据优先级来）
+ * Spring默认提供的是org.springframework.aop.aspectj.autoproxy.AspectJAwareAdvisorAutoProxyCreator，AOP的核心类， 完成类->代理的转换过程
+ * 在这个方法里面也会根据配置proxy-target-class和expose-proxy，设置是否使用CGLIB进行代理以及是否暴露最终的代理。
+ */
 		configureAutoProxyCreator(parserContext, element);
 
 		List<Element> childElts = DomUtils.getChildElements(element);
@@ -227,11 +231,17 @@ class ConfigBeanDefinitionParser implements BeanDefinitionParser {
 						}
 						beanReferences.add(new RuntimeBeanReference(aspectName));
 					}
+					// 找不同的标签实现类封装为BeanDefinition
+					//	 * 根据织入方式（before、after这些）创建RootBeanDefinition，名为adviceDef即advice定义
+					//	 * 将上一步创建的RootBeanDefinition写入一个新的RootBeanDefinition，构造一个新的对象，名为advisorDefinition，即advisor定义
+					//	 * 将advisorDefinition注册到DefaultListableBeanFactory中
+
 					AbstractBeanDefinition advisorDefinition = parseAdvice(
 							aspectName, i, aspectElement, (Element) node, parserContext, beanDefinitions, beanReferences);
 					beanDefinitions.add(advisorDefinition);
 				}
 			}
+
 
 			AspectComponentDefinition aspectComponentDefinition = createAspectComponentDefinition(
 					aspectElement, aspectId, beanDefinitions, beanReferences, parserContext);
@@ -311,6 +321,7 @@ class ConfigBeanDefinitionParser implements BeanDefinitionParser {
 	 * '{@code after-throwing}' or '{@code around}' and registers the resulting
 	 * BeanDefinition with the supplied BeanDefinitionRegistry.
 	 * @return the generated advice RootBeanDefinition
+
 	 */
 	private AbstractBeanDefinition parseAdvice(
 			String aspectName, int order, Element aspectElement, Element adviceElement, ParserContext parserContext,
@@ -366,6 +377,7 @@ class ConfigBeanDefinitionParser implements BeanDefinitionParser {
 			RootBeanDefinition methodDef, RootBeanDefinition aspectFactoryDef,
 			List<BeanDefinition> beanDefinitions, List<BeanReference> beanReferences) {
 
+		// 根据标签创建不同的通知类
 		RootBeanDefinition adviceDefinition = new RootBeanDefinition(getAdviceClass(adviceElement, parserContext));
 		adviceDefinition.setSource(parserContext.extractSource(adviceElement));
 
@@ -432,6 +444,7 @@ class ConfigBeanDefinitionParser implements BeanDefinitionParser {
 	/**
 	 * Parses the supplied {@code <pointcut>} and registers the resulting
 	 * Pointcut with the BeanDefinitionRegistry.
+	 * ，就解析了<aop:pointcut>标签中的内容并将之转换为RootBeanDefintion存储在Spring容器中。
 	 */
 	private AbstractBeanDefinition parsePointcut(Element pointcutElement, ParserContext parserContext) {
 		String id = pointcutElement.getAttribute(ID);

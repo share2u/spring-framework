@@ -68,6 +68,7 @@ public class AfterReturningAdviceBindingTests {
 
 	@Test
 	public void testOneIntArg() {
+		//TODO cwm aop 入口
 		testBeanProxy.setAge(5);
 		verify(mockCollaborator).oneIntArg(5);
 	}
