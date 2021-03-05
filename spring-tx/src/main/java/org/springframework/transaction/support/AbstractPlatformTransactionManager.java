@@ -349,6 +349,8 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 			definition = new DefaultTransactionDefinition();
 		}
 
+		//第一次进来connectionHolder为空的，所以不存在事务
+		//有连接（connectionHolder），并且活跃时，为true
 		if (isExistingTransaction(transaction)) {
 			// Existing transaction found -> check propagation behavior to find out how to behave.
 			return handleExistingTransaction(definition, transaction, debugEnabled);
@@ -364,18 +366,27 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 			throw new IllegalTransactionStateException(
 					"No existing transaction found for transaction marked with propagation 'mandatory'");
 		}
+		//第一次进来大部分会走这里
+		/** PROPAGATION_REQUIRED：如果已经存在事务，就加入存在事务的连接。
+		 *  ROPAGATION_REQUIRES_NEW：如果已经存在事务，挂起当前事务，创建新的连接。
+		 *  PROPAGATION_NESTED：如果存在事务，在嵌套事务内执行。
+		 */
 		else if (definition.getPropagationBehavior() == TransactionDefinition.PROPAGATION_REQUIRED ||
 				definition.getPropagationBehavior() == TransactionDefinition.PROPAGATION_REQUIRES_NEW ||
 				definition.getPropagationBehavior() == TransactionDefinition.PROPAGATION_NESTED) {
+			//挂起资源的信息
 			SuspendedResourcesHolder suspendedResources = suspend(null);
 			if (debugEnabled) {
 				logger.debug("Creating new transaction with name [" + definition.getName() + "]: " + definition);
 			}
 			try {
 				boolean newSynchronization = (getTransactionSynchronization() != SYNCHRONIZATION_NEVER);
+				//创建事务状态对象，其实就是封装了事务对象的一些信息，记录事务状态的
 				DefaultTransactionStatus status = newTransactionStatus(
 						definition, transaction, true, newSynchronization, debugEnabled, suspendedResources);
+				//开启事务 DataSourceTransactionObject
 				doBegin(transaction, definition);
+				//开启事务后，改变事务状态
 				prepareSynchronization(status, definition);
 				return status;
 			}
