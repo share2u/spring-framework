@@ -1690,7 +1690,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		if (!(beanInstance instanceof FactoryBean) || BeanFactoryUtils.isFactoryDereference(name)) {
 			return beanInstance;
 		}
-
+ 		// 是factoryBean
 		Object object = null;
 		if (mbd == null) {
 			object = getCachedObjectForFactoryBean(beanName);

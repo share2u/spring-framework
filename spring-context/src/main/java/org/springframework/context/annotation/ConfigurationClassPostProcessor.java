@@ -218,7 +218,9 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 	 */
 	@Override
 	public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) {
+		//根据BeanDefinitionRegistry,生成registryId 是全局唯一的。
 		int registryId = System.identityHashCode(registry);
+		// 判断，如果这个registryId 已经被执行过了，就不能够再执行了，否则抛出异常
 		if (this.registriesPostProcessed.contains(registryId)) {
 			throw new IllegalStateException(
 					"postProcessBeanDefinitionRegistry already called on this post-processor against " + registry);
@@ -227,14 +229,16 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 			throw new IllegalStateException(
 					"postProcessBeanFactory already called on this post-processor against " + registry);
 		}
+		// 已经执行过的registry  防止重复执行
 		this.registriesPostProcessed.add(registryId);
-
+		// 调用processConfigBeanDefinitions 进行Bean定义的加载.代码如下
 		processConfigBeanDefinitions(registry);
 	}
 
 	/**
 	 * Prepare the Configuration classes for servicing bean requests at runtime
 	 * by replacing them with CGLIB-enhanced subclasses.
+
 	 */
 	@Override
 	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) {
@@ -257,9 +261,13 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 	/**
 	 * Build and validate a configuration model based on the registry of
 	 * {@link Configuration} classes.
+	 * 	 * // 解释一下：我们配置类是什么时候注册进去的呢？？？(此处只讲注解驱动的Spring和SpringBoot)
+	 * 	 * 	// 注解驱动的Spring为：自己在`MyWebAppInitializer`里面自己手动指定进去的
+	 * 	 * 	// SpringBoot为它自己的main引导类里去加载进来的，后面详说SpringBoot部分
 	 */
 	public void processConfigBeanDefinitions(BeanDefinitionRegistry registry) {
 		List<BeanDefinitionHolder> configCandidates = new ArrayList<>();
+		// 获取已经注册的bean名称（此处有7个   6个Bean+rootConfig）
 		String[] candidateNames = registry.getBeanDefinitionNames();
 
 		for (String beanName : candidateNames) {
@@ -270,6 +278,9 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 					logger.debug("Bean definition has already been processed as a configuration class: " + beanDef);
 				}
 			}
+			// 检查是否是@Configuration的Class,如果是就标记下属性：full 或者lite。beanDef.setAttribute(CONFIGURATION_CLASS_ATTRIBUTE, CONFIGURATION_CLASS_FULL)
+			// 加入到configCandidates里保存配置文件类的定义
+			// 显然此处，仅仅只有rootConfig一个类符合条件
 			else if (ConfigurationClassUtils.checkConfigurationClassCandidate(beanDef, this.metadataReaderFactory)) {
 				configCandidates.add(new BeanDefinitionHolder(beanDef, beanName));
 			}
@@ -288,6 +299,8 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 		});
 
 		// Detect any custom bean name generation strategy supplied through the enclosing application context
+		// 此处registry是DefaultListableBeanFactory 这里会进去
+		// 尝试着给Bean扫描方式，以及import方法的BeanNameGenerator赋值(若我们都没指定，那就是默认的AnnotationBeanNameGenerator：扫描为首字母小写，import为全类名)
 		SingletonBeanRegistry sbr = null;
 		if (registry instanceof SingletonBeanRegistry) {
 			sbr = (SingletonBeanRegistry) registry;
@@ -305,6 +318,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 		}
 
 		// Parse each @Configuration class
+//		这是重点：真正解析@Configuration类的，其实是ConfigurationClassParser 这个解析器来做的
 		ConfigurationClassParser parser = new ConfigurationClassParser(
 				this.metadataReaderFactory, this.problemReporter, this.environment,
 				this.resourceLoader, this.componentScanBeanNameGenerator, registry);
